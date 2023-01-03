@@ -115,6 +115,8 @@ class Session(object):
             if parts[0] == "#$#*":
                 # multiline
                 pass
+            elif parts[1] == 'edit':
+                pass  # Local Edit is built upon MCP 1.0, and doesn't have an auth key
             else:
                 parts[1] = client.state.get('mcp_key', parts[1])
             client.write(' '.join(parts) + '\n')
