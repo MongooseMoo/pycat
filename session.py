@@ -108,16 +108,31 @@ class Session(object):
         # Multiline message:
         # #$#* <datatag> <single-keyval>
         # self.show(line + '\n')
+
+        replace_auth = False
+        parts = line.strip().split(' ')
+        try:
+            if parts[0] == "#$#*":
+                # multiline
+                self.world.handleMcpMultiline(*parts[1:])
+            elif parts[1] == 'edit':
+                pass  # Local Edit is built upon MCP 1.0, and doesn't have an auth key
+            elif parts[0] == '#$#mcp' and parts[1] == 'version:':
+                pass
+            else:
+                replace_auth = True
+                self.world.handleMcp(parts[0][3:], {parts[i].strip(':'): parts[i + 1] for i in range(2, len(parts), 2)}, line)
+        except:
+            pass
+
         for client in self.clients:
             if client.has_mcp is False:
                 continue
-            parts = line.split(' ')
-            if parts[0] == "#$#*":
-                # multiline
-                pass
-            elif parts[1] == 'edit':
-                pass  # Local Edit is built upon MCP 1.0, and doesn't have an auth key
-            else:
+            elif client.has_mcp is None:
+                # Initialize them
+                client.has_mcp = False
+                client.write("#$#mcp version: 2.1 to: 2.1")
+            if replace_auth:
                 parts[1] = client.state.get('mcp_key', parts[1])
             client.write(' '.join(parts) + '\n')
 
@@ -232,6 +247,17 @@ class Session(object):
                 self.world.quit()
             self.stopFlag.set()
             raise SystemExit()
+        elif data.startswith("#$#mcp authentication-key:") and self.world.mcp[0].negotiated:
+            # todo: get client up to speed
+            try:
+                parts = data.strip().split(' ')
+                c = [c for c in self.clients if c.state.get('mcp_key') == parts[2]][0]
+                print(f'Initializing MCP on {c}')
+                for package in self.world.mcp:
+                    package.newClient(c)
+            except Exception as e:
+                self.log("Exception in handle_output_line():", e)
+                traceback.print_exc()
         else:
             handled = False
             try:

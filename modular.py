@@ -2,6 +2,7 @@ import re
 import threading
 import time
 
+from mcp.mcp_negotiate import Negotiate
 from requests.structures import CaseInsensitiveDict
 
 
@@ -93,6 +94,7 @@ class ModularClient(TimerMixin):
         self.mud = mud
         self.state = {}
         self.gmcp = CaseInsensitiveDict()
+        self.mcp = [Negotiate(self)]
         self.aliases = {}
         self.triggers = {}
         self.timers = self.getTimers()
@@ -177,6 +179,18 @@ class ModularClient(TimerMixin):
             if hasattr(module, 'handleGmcp'):
                 module.handleGmcp(cmd, value)
 
+    def handleMcp(self, name: str, keys: dict[str, str], line: str) -> bool:
+        for package in self.mcp:
+            if package.handle(name, keys):
+                return True
+        print('Got unknown MCP message: ' + line)
+        return False
+
+    def handleMcpMultiline(self, tag: str, key: str, val: str) -> None:
+        for package in self.mcp:
+            if package.handleMultiline(tag, key, val):
+                return
+
     def quit(self) -> None:
         for module in self.modules.values():
             if hasattr(module, 'quit'):
@@ -188,7 +202,7 @@ class ModularClient(TimerMixin):
     def send(self, *args):
         self.mud.send(*args)
 
-    def log(self, *args, **kwargs):
+    def log(self, *args, **kwargs) -> None:
         self.mud.log(*args, **kwargs)
 
     def show(self, *args):

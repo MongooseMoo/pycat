@@ -35,7 +35,7 @@ class Map(object):
             self.m = {'areas': {}, 'bookmarks': {}, 'rooms': {}}
 
     def serialize(self):
-        return json.dumps(self.m)
+        return json.dumps(self.m, indent=2)
 
     def getBookmarks(self):
         return self.m['bookmarks']
@@ -691,7 +691,7 @@ class Mapper(BaseModule):
                 'lock': self.lockExit,
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(False, True, False)])),
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(True, True, False)])),
-                'gounmapped': lambda args: self.go(self.unmapped(False, True, True)[0], 'go'),
+                'gounmapped': lambda args: self.go((self.unmapped(False, True, True) or self.unmapped(False, False, True))[0], 'go'),
                 'av': self.autoVisit,
                 'areas': self.areas,
                 'find': self.find,

@@ -22,7 +22,7 @@ class Client():
 
     pipe_write = None
 
-    def write(self, line: bytes) -> None:
+    def write(self, line: bytes | str) -> None:
         if isinstance(line, str):
             line = line.encode('utf-8')
         if self.pipe_write is None:
