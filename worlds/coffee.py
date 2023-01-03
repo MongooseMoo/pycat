@@ -1,7 +1,7 @@
 import importlib
 import json
-import traceback
 import time
+import traceback
 
 import modular
 
@@ -834,8 +834,8 @@ class Coffee(modular.ModularClient):
         self.logfname = '{}.log'.format(name)
         self.mapfname = 'coffee.map'
 
-        import modules.logging
         import modules.eval
+        import modules.logging
         import modules.mapper
         importlib.reload(modular)
         importlib.reload(modules.logging)
@@ -978,7 +978,6 @@ class Coffee(modular.ModularClient):
                 if hp == maxhp and self.state['prevhp'] < maxhp:
                     self.log("Healed!")
                 self.state['prevhp'] = hp
-                pass
 
         if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
             if self.gmcp['char']['status']['pos'] == 'Sleeping' and self.gmcp['char']['vitals']['mana'] > 100:

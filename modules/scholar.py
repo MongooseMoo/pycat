@@ -1,9 +1,5 @@
+
 from modules.basemodule import BaseModule
-
-import random
-import re
-import time
-
 
 # start with at least 10 charisma, max int and wis
 # At level 1, train scholar, practice write
@@ -134,7 +130,7 @@ def tryAgainTeaching(world, matches):
     if 'times' not in world.state['learn']:
         world.state['learn']['times'] = 0
     world.state['learn']['times'] += 1
-    if world.state['learn']['times'] < 10: 
+    if world.state['learn']['times'] < 10:
         world.send("teach " + world.state['learn']['learner'] + " " + matches[0])
 
 def doneTeaching(world, matches):
@@ -157,7 +153,7 @@ class Scholar(BaseModule):
             '^You have remorted back to level 1!': 'run n w\ntrain scholar\ntrain int\ntrain int\ntrain int\ntrain int\nprac write\nrun e s\nsay help',
             # 'You are now in Add Text mode.': lambda mud, groups: [mud.log("Add text handler"), mud.send('q'), mud.send('y')],
             "(.+) whispers to you 'teach me (.+)'.": startLearning,
-            ".+ fails to teach you (.+).": failedLearning, 
+            ".+ fails to teach you (.+).": failedLearning,
             'You are done learning (.+) from (.+).': doneLearning,
             'You already know (.+).': doneLearning,
             "You don't seem to know (.+).": tryAgainTeaching,

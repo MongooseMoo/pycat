@@ -4,10 +4,11 @@ import time
 import traceback
 
 import modular
-import modules.gzlogging
 import modules.eval
+import modules.gzlogging
 # import modules.repeat
 import modules.mapper
+
 importlib.reload(modular)
 importlib.reload(modules.gzlogging)
 importlib.reload(modules.eval)

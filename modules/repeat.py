@@ -1,5 +1,6 @@
-from modules.basemodule import BaseModule
 import collections
+
+from modules.basemodule import BaseModule
 
 
 class Repeat(BaseModule):

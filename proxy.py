@@ -3,7 +3,6 @@
 import os
 import socket
 import threading
-
 from select import select
 
 SINGLE_CLIENT = False

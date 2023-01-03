@@ -1,10 +1,11 @@
-import os
-from modules.basemodule import BaseModule
 import collections
 import json
+import os
 import pprint
 import re
 import time
+
+from modules.basemodule import BaseModule
 
 
 def log(*args, **kwargs):

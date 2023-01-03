@@ -1,7 +1,7 @@
-from modules.basemodule import BaseModule
-
 import gzip
 import subprocess
+
+from modules.basemodule import BaseModule
 
 
 class GzLogging(BaseModule):

@@ -1,11 +1,11 @@
 import importlib
 import json
-import traceback
-import time
 
 import coffee
-importlib.reload(coffee)
 import modular
+
+importlib.reload(coffee)
+
 importlib.reload(modular)
 
 

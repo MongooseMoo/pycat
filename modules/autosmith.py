@@ -1,10 +1,8 @@
-from modules.basemodule import BaseModule
-
-import pprint
 import random
-import re
 import time
 import urllib.request
+
+from modules.basemodule import BaseModule
 
 
 def nothingToForage(mud, _):
@@ -267,7 +265,7 @@ class AutoSmith(BaseModule):
     def honeTimer(self, mud):
         if 'honeSkills' not in mud.state:
             mud.state['honeSkills'] = ['constr title foo', 'gemdig', 'masonry title blarg', 'search', 'mastermine']
-        
+
         skillToCmd = ['Construction', 'Gem Digging', 'Masonry', 'Searching', 'Master Mining']
 
         def onHoneSuccess(skill):
@@ -290,7 +288,7 @@ class AutoSmith(BaseModule):
         mud.state['hone_on_success'] = onHoneSuccess
         mud.state['honing'] = (cmd, 1)
         self.send("stand\n{}".format(cmd))
-        
+
     def getTimers(self):
         if False:
             return {

@@ -5,11 +5,11 @@ import traceback
 import typing
 
 import modular
-import modules.logging
 import modules.eval
-import modules.repeat
+import modules.logging
 import modules.mapper
 import modules.ping
+import modules.repeat
 
 importlib.reload(modular)
 importlib.reload(modules.logging)

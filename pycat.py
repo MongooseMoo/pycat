@@ -2,9 +2,9 @@
 
 import importlib
 import os
-from session import Session
 
 import click
+from session import Session
 
 if not os.path.exists('data'):
     os.mkdir('data')

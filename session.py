@@ -1,7 +1,3 @@
-from types import ModuleType
-from modular import ModularClient
-from proxy import proxy
-from select import select
 import importlib
 import json
 import os
@@ -10,6 +6,11 @@ import re
 import telnetlib
 import threading
 import traceback
+from select import select
+from types import ModuleType
+
+from modular import ModularClient
+from proxy import proxy
 from requests.structures import CaseInsensitiveDict
 
 telnetlib.GMCP = b'\xc9'  # type: ignore

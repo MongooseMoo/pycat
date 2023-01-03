@@ -1,6 +1,7 @@
-from typing import Any
-from modules.basemodule import BaseModule
 from pprint import pformat
+from typing import Any
+
+from modules.basemodule import BaseModule
 
 
 class Eval(BaseModule):

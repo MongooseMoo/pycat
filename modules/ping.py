@@ -1,6 +1,8 @@
-from typing import Any
-from modules.basemodule import BaseModule
 import telnetlib
+from typing import Any
+
+from modules.basemodule import BaseModule
+
 
 class Ping(BaseModule):
     """

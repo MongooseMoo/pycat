@@ -1,6 +1,8 @@
 import os
-from modules.basemodule import BaseModule
 import subprocess
+
+from modules.basemodule import BaseModule
+
 
 class Logging(BaseModule):
     def __init__(self, mud, logfname):

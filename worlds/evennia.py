@@ -2,10 +2,11 @@ import importlib
 import traceback
 
 import modular
-import modules.logging
 import modules.eval
-import modules.repeat
+import modules.logging
 import modules.mapper
+import modules.repeat
+
 importlib.reload(modular)
 importlib.reload(modules.logging)
 importlib.reload(modules.eval)

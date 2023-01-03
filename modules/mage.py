@@ -1,8 +1,6 @@
+
 from modules.basemodule import BaseModule
 
-import random
-import re
-import time
 
 class Mage(BaseModule):
     def __init__(self, *args, **kwargs):

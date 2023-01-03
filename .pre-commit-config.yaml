@@ -1,0 +1,18 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.5.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+-   repo: https://github.com/timothycrosley/isort
+    rev: 4.3.21
+    hooks:
+    -   id: isort
+        language_version: python3
+-   repo: https://github.com/PyCQA/autoflake
+    rev: v1.4
+    hooks:
+        - id: autoflake
+          args: [--remove-all-unused-imports, --in-place, --ignore-init-module-imports]

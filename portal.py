@@ -1,8 +1,10 @@
 import glob
 from os import path
+
 import modular
 import worlds
 from modules.file_editor import FileEdit
+
 
 class Portal(modular.ModularClient):
     def __init__(self, mud, _) -> None:
