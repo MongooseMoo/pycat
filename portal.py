@@ -3,12 +3,16 @@ from os import path
 
 import modular
 import worlds
+from modules.eval import Eval
 from modules.file_editor import FileEdit
 
 
 class Portal(modular.ModularClient):
     def __init__(self, mud, _) -> None:
-        self.modules = {"file_editor": FileEdit(mud)}
+        self.modules = {
+            "file_editor": FileEdit(mud),
+            "eval": Eval(mud),
+        }
         super().__init__(mud)
         modules = glob.glob(path.join(path.dirname(worlds.__file__), '*.py'))
         self.worlds = [path.basename(f)[:-3] for f in modules if path.isfile(f) and not f.endswith('__init__.py')]

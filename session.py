@@ -25,7 +25,7 @@ class Session(object):
         self.world: ModularClient = world_module.getClass()(self, self.arg)
         self.terminate_on_disconnect = terminate_on_disconnect
         try:
-            self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy = proxy(bindAddr, port)
+            self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy, self.clients, self.session_state = proxy(bindAddr, port)
             self.pipeToSocketW = os.fdopen(self.pipeToSocketW, 'wb')
             self.proxyThread = threading.Thread(target=runProxy)
             self.proxyThread.start()
@@ -35,9 +35,6 @@ class Session(object):
             self.stopFlag.set()
             self.world.quit()
             raise
-
-    def join(self):
-        self.thr.join()
 
     def log(self, *args, bar: bool = True, **kwargs) -> None:
         if len(args) == 1 and type(args[0]) == str:
@@ -104,6 +101,24 @@ class Session(object):
         current[lastkey] = val
         self.world.handleGmcp(whole_key, val)
 
+    def handleMcp(self, line: str) -> None:
+        # http://www.moo.mud.org/mcp2/mcp2.html
+        # Regular message:
+        #   #$#<message-name> <auth-key> <keyvals>
+        # Multiline message:
+        # #$#* <datatag> <single-keyval>
+        # self.show(line + '\n')
+        for client in self.clients:
+            if client.has_mcp is False:
+                continue
+            parts = line.split(' ')
+            if parts[0] == "#$#*":
+                # multiline
+                pass
+            else:
+                parts[1] = client.state.get('mcp_key', parts[1])
+            client.write(' '.join(parts) + '\n')
+
     def connect(self, host: str, port: int) -> telnetlib.Telnet:
         t = telnetlib.Telnet()
         t.set_option_negotiation_callback(self.iac)
@@ -141,6 +156,11 @@ class Session(object):
         prn = []
         for line in data.split('\n'):
             if line:
+                if line.startswith('#$#'):
+                    self.handleMcp(line)
+                    continue
+                elif line.startswith('#$"'):
+                    line = line[3:]
                 replacement = None
                 try:
                     replacement = self.world.trigger(line.strip())
@@ -153,7 +173,7 @@ class Session(object):
         self.pipeToSocketW.flush()
 
 
-    def show(self, line):
+    def show(self, line: str) -> None:
         self.pipeToSocketW.write(line.encode(self.client_encoding))
         self.pipeToSocketW.flush()
 
@@ -182,6 +202,7 @@ class Session(object):
 
 
     def handle_output_line(self, data: str):
+        """Pre-process data to be sent to the MUD"""
         pprint.pprint(data)
         if data == '#reload' and self.world:
             self.log('Reloading world')

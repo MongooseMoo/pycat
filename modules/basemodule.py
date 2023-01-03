@@ -2,7 +2,7 @@ from typing import Any
 
 
 class BaseModule(object):
-    def __init__(self, mud):
+    def __init__(self, mud) -> None:
         self.mud = mud
 
     def send(self, line):
