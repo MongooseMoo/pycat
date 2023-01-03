@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 click = "*"
 requests = "*"
+attrs = "*"
 
 [dev-packages]
 flake8 = "*"
