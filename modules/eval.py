@@ -19,6 +19,7 @@ class Eval(BaseModule):
         return {
             'self': self,
             'mud': self.mud,
+            'session': self.mud,
             'world': self.mud.world,
             'gmcp': self.mud.world.gmcp,
             'state': self.mud.world.state,
