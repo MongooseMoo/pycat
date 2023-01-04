@@ -143,7 +143,7 @@ class Session(object):
         t.open(host, int(port))
         return t
 
-    def send(self, line):
+    def send(self, line: str) -> None:
         if not self.telnet:
             self.log("Not Connected.")
             return
@@ -248,7 +248,6 @@ class Session(object):
             self.stopFlag.set()
             raise SystemExit()
         elif data.startswith("#$#mcp authentication-key:") and self.world.mcp[0].negotiated:
-            # todo: get client up to speed
             try:
                 parts = data.strip().split(' ')
                 c = [c for c in self.clients if c.state.get('mcp_key') == parts[2]][0]

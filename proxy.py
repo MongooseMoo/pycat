@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import collections
 import os
 import socket
 import threading
@@ -38,7 +39,7 @@ class Client():
         return line
 
 # returns anonymous pipes (readableFromClient, writableToClient)
-def proxy(bindAddr: str, listenPort: int) -> tuple[int, int, threading.Event, Callable, list[Client]]:
+def proxy(bindAddr: str, listenPort: int) -> tuple[int, int, threading.Event, Callable, list[Client], dict[str, Any]]:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((bindAddr, listenPort))
@@ -61,6 +62,7 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
     clientPipes: list[int] = []
 
     pipeToSocketBuffer: list[bytes] = []
+    lastTen = collections.deque(maxlen=10)
 
     def remove_socket(fd: Any) -> Client:
         fd.close()
@@ -85,7 +87,7 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
         clients.append(state)
         clientStates[clientSocket] = state
         clientPipes.append(state.oob_out[0])
-        for item in pipeToSocketBuffer:
+        for item in pipeToSocketBuffer or lastTen:
             clientSocket.sendall(item)
         pipeToSocketBuffer.clear()
 
@@ -102,7 +104,13 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
                         print("socket disconnected")
                     else:
                         if data.startswith(b'#$#'):
-                            data = clientStates[fd].handle_inbound_mcp(data)
+                            s = clientStates[fd]
+                            data = s.handle_inbound_mcp(data)
+                            if 'mcp_key' not in session_state and 'mcp_key' in s.state:
+                                session_state['mcp_key'] = s.state['mcp_key']
+                                # todo replace client key with session key
+                            elif (ckey := s.state.get('mcp_key')) != (skey := session_state.get('mcp_key')) and ckey and skey:
+                                data.replace(ckey.encode('utf-8'), skey.encode('utf-8'))
                         socketToPipeW.write(data)  # TODO: partial writes?
                         socketToPipeW.flush()
                 except TimeoutError:
@@ -117,6 +125,7 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
                 if not data:
                     print("EOF from pipe")
                     break
+                lastTen.append(data)
                 if clientSockets:
                     for clientSocket in clientSockets:
                         clientSocket.sendall(data)  # TODO: partial writes?
