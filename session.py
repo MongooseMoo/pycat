@@ -101,7 +101,7 @@ class Session(object):
         current[lastkey] = val
         self.world.handleGmcp(whole_key, val)
 
-    def handleMcp(self, line: str) -> None:
+    def handleMcp(self, line: str) -> bool:
         # http://www.moo.mud.org/mcp2/mcp2.html
         # Regular message:
         #   #$#<message-name> <auth-key> <keyvals>
@@ -116,7 +116,8 @@ class Session(object):
                 # multiline
                 self.world.handleMcpMultiline(*parts[1:])
             elif parts[1] == 'edit':
-                pass  # Local Edit is built upon MCP 1.0, and doesn't have an auth key
+                # Local Edit is built upon MCP 1.0, and doesn't have an auth key
+                return False
             elif parts[0] == '#$#mcp' and parts[1] == 'version:':
                 pass
             else:
@@ -135,6 +136,7 @@ class Session(object):
             if replace_auth:
                 parts[1] = client.state.get('mcp_key', parts[1])
             client.write(' '.join(parts) + '\n')
+        return True
 
     def connect(self, host: str, port: int) -> telnetlib.Telnet:
         t = telnetlib.Telnet()
@@ -174,8 +176,8 @@ class Session(object):
         for line in data.split('\n'):
             if line:
                 if line.startswith('#$#'):
-                    self.handleMcp(line)
-                    continue
+                    if self.handleMcp(line):
+                        continue
                 elif line.startswith('#$"'):
                     line = line[3:]
                 replacement = None
