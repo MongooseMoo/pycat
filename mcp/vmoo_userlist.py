@@ -1,3 +1,4 @@
+import moo_grammar
 from mcp.basepackage import PACKAGES, McpPackage
 from proxy import Client
 
@@ -7,6 +8,7 @@ class VMooUserlist(McpPackage):
     icons: str = ""
     fields: str = ""
     users: list = []
+    afk = moo_grammar.MooList()
 
     datatag: str = ""
 
@@ -19,15 +21,33 @@ class VMooUserlist(McpPackage):
         return super().handle(name, args)
 
     def handleMultiline(self, tag, key, value) -> bool:
+        # print((tag, key, value))
         if tag == self.datatag:
+            # print('userlist')
             if key == "fields":
                 self.fields = value
             elif key == 'icons':
                 self.icons = value
             elif key == 'd':
                 # This is the fun one.
-                if value[0] == '=':
-                    pass
+                val = moo_grammar.parse_value(value[1:])
+                match value[0]:
+                    case '=':
+                        self.users = val
+                    case '-':
+                        # user offline
+                        u = [u for u in self.users if u[0] == val][0]
+                        self.users.remove(u)
+                    case '+':
+                        # user online
+                        self.users.append(val)
+                    case '>':
+                        self.afk.pop(val)
+                    case '<':
+                        self.afk.append(val)
+                    case _:
+                        print('unknown d: ' + repr(value))
+
 
             return True
         return super().handleMultiline(tag, key, value)
@@ -36,9 +56,10 @@ class VMooUserlist(McpPackage):
         authkey = client.state["mcp_key"]
         client.write(f'#$#dns-com-vmoo-userlist-you {authkey} nr: {self.user}\n')
         client.write(f'#$#dns-com-vmoo-userlist {authkey} icons*: "" fields*: "" d*: "" _data-tag: {self.datatag}\n')
-        client.write(f'#$#* {self.datatag} fields: {self.fields}')
-        client.write(f'#$#* {self.datatag} icons: {self.icons}')
-        client.write('#$#* ' + self.datatag + ' d: ={}\n')
+        client.write(f'#$#* {self.datatag} fields: {self.fields}\n')
+        client.write(f'#$#* {self.datatag} icons: {self.icons}\n')
+        client.write('#$#* ' + self.datatag + f' d: ={self.users}\n')
+        client.write('#$#* ' + self.datatag + f' d: <{self.afk}\n')
 
 
 PACKAGES['dns-com-vmoo-userlist'] = VMooUserlist

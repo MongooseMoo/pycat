@@ -188,7 +188,7 @@ class ModularClient(TimerMixin):
 
     def handleMcpMultiline(self, tag: str, key: str, val: str) -> None:
         for package in self.mcp:
-            if package.handleMultiline(tag, key, val):
+            if package.handleMultiline(tag, key.strip(':'), val):
                 return
 
     def quit(self) -> None:

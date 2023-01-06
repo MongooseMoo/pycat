@@ -9,6 +9,7 @@ import traceback
 from select import select
 from types import ModuleType
 
+import traceback_with_variables
 from modular import ModularClient
 from proxy import proxy
 from requests.structures import CaseInsensitiveDict
@@ -114,7 +115,7 @@ class Session(object):
         try:
             if parts[0] == "#$#*":
                 # multiline
-                self.world.handleMcpMultiline(*parts[1:])
+                self.world.handleMcpMultiline(parts[1], parts[2], ' '.join(parts[3:]))
             elif parts[1] == 'edit':
                 # Local Edit is built upon MCP 1.0, and doesn't have an auth key
                 return False
@@ -123,8 +124,9 @@ class Session(object):
             else:
                 replace_auth = True
                 self.world.handleMcp(parts[0][3:], {parts[i].strip(':'): parts[i + 1] for i in range(2, len(parts), 2)}, line)
-        except:
-            pass
+        except Exception as e:
+            print(f'MCP Error: {e}')
+            traceback_with_variables.print_exc(e)
 
         for client in self.clients:
             if client.has_mcp is False:

@@ -1,0 +1,89 @@
+?value: map
+  | list
+  | ESCAPED_STRING
+  | SIGNED_INT
+  | SIGNED_FLOAT
+  | OBJ_NUM
+
+?expression: value
+  | assignment
+  | verb_call
+  | function_call
+  | subscript
+  | ternary
+  | compact_try
+  | prop_ref
+  | binary_expression
+  | logical_expression
+  | comparison
+  | "(" expression ")"
+  | spread
+  |  unary_expression
+  | VAR
+
+list : "{" [expression ("," expression)*] "}"
+map : "[" [map_item ("," map_item)*] "]"
+map_item : expression "->" expression
+
+OBJ_NUM: "#" SIGNED_INT
+prop_ref: expression "." expression
+
+IN: "in"
+VAR.-5: (("_"|"$"|LETTER) ("_"|LETTER|DIGIT)*)
+arg_list : "(" [expression ("," expression)*] ")"
+function_call: VAR arg_list
+verb_call: expression ":" (VAR | ESCAPED_STRING | "(" expression ")") arg_list
+?flow_statement: break | continue | return
+break: "break" [VAR]
+continue: "continue" [VAR]
+return: "return" [expression]
+?statement: (scatter_assignment | expression | flow_statement )? ";"
+!binary_op: ("+" | "-" | "*" | "/" | "^" | "%" )
+!comp_op: (IN | "==" | ">=" | "<=" | "!=" | "<" | ">" )
+!logical_op: ("&&" | "||")
+!unary_op: ("!" | "~" | "-")
+
+assignment: (VAR | prop_ref | subscript) "=" expression
+default_val: "?" VAR "=" expression
+scatter_names: "{" [(VAR | default_val) ("," (VAR | default_val))*] "}"
+scatter_assignment: scatter_names "=" expression
+binary_expression: (expression binary_op expression)
+unary_expression: unary_op expression
+subscript: expression "[" ( slice | expression ) "]"
+!slice_op: ".."
+slice: (expression slice_op expression)
+
+SPREAD_OP: "@"
+spread: SPREAD_OP expression
+
+comparison: expression (comp_op expression)+
+logical_expression: expression (logical_op expression)+
+if: "if" "(" expression ")" block elseif* else? "endif"
+elseif: "elseif" "(" expression ")" block
+else: "else" block
+
+for: "for" expression ["," VAR] "in" ("[" expression "]" | "(" expression ")") block "endfor"
+while: "while" VAR? "(" expression ")" block "endwhile"
+fork: "fork" "(" expression ")" block "endfork"
+ANY: "any"
+try: "try" [block] except_block* [finally_block] "endtry"
+except_block: except_clause block
+except_clause: "except" [VAR] "(" (VAR | ANY ) ")"
+finally_block:  "finally" block
+
+compact_try: "`" expression "!" (ANY | expression) ["=>" expression] "'"
+
+ternary: (expression "?" expression "|" expression)
+
+block: (statement | if | for | while | try | fork )*
+start: block | value
+
+
+%import common.ESCAPED_STRING
+%import common.SIGNED_INT
+%import common.SIGNED_FLOAT
+%import common.WS
+%import common.LETTER
+%import common.DIGIT
+
+%ignore WS
