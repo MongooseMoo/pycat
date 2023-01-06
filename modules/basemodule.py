@@ -17,6 +17,9 @@ class BaseModule(object):
     def getTriggers(self):
         return {}
 
+    def getOneTimeTriggers(self):
+        return {}
+
     def getAliases(self):
         return {}
 

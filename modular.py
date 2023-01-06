@@ -97,6 +97,7 @@ class ModularClient(TimerMixin):
         self.mcp = [Negotiate(self)]
         self.aliases = {}
         self.triggers = {}
+        self.oneTimeTriggers = {}
         self.timers = self.getTimers()
         TimerMixin.__init__(self)
         if not hasattr(self, 'modules'):
@@ -106,6 +107,7 @@ class ModularClient(TimerMixin):
             m.world = self
             self.aliases.update(m.getAliases())
             self.triggers.update(m.getTriggers())
+            self.oneTimeTriggers.update(m.getOneTimeTriggers())
             self.timers.update(m.getTimers())
 
     def getHostPort(self) -> tuple[str, str | int]:
@@ -165,6 +167,20 @@ class ModularClient(TimerMixin):
                     if output:  # might be for side effects
                         self.send(output)
                 break
+
+        toDelete = []
+        for trigger, response in self.oneTimeTriggers.items():
+            if re.match(trigger, stripped):
+                if isinstance(response, str):
+                    self.send(response)
+                else:
+                    output = response(self, re.match(trigger, stripped).groups())
+                    if output:  # might be for side effects
+                        self.send(output)
+                toDelete.append(trigger)
+                break
+        for item in toDelete:
+            del self.oneTimeTriggers[item]
 
         replacement = None
         for module in self.modules.values():

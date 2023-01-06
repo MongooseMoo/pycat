@@ -50,11 +50,16 @@ def write(mud, lag=1):
         # del mud.triggers['Menu ...A.D.L.I.E.R.S.Q.W.:']
         # del mud.triggers['Quit without saving .N.y..']
 
+    def sleep(mud, matches):
+        if mud.gmcp['room']['info']['num'] != 1741703288:
+            mud.log("Not running Scholar script - must be in Pecking Place")
+        mud.send("\nsleep")
+
     mud.log("Adding write triggers")
     mud.triggers['You are now in Add Text mode.'] = '\n'
     mud.triggers['Menu ...A.D.L.I.E.R.S.Q.W.:'] = 'q'
     mud.triggers['Quit without saving .N.y..'] = lambda mud, groups: end('y')
-    mud.triggers['Enter the name of the chapter:'] = '\nsleep'
+    mud.triggers['Enter the name of the chapter:'] = sleep
     mud.triggers['Enter an empty line to exit.'] = '\nblarg'
 
     lagSend(mud, lag, 'stand')
@@ -160,6 +165,8 @@ class Scholar(BaseModule):
             ".+ has not learned the pre-requisites to (.+) yet.": doneTeaching,
             "You teach .+ '(.+)'": doneTeaching,
             "You attempt to write on .*, but mess up.": lambda mud, groups: write(mud, 1),
+            "You don't have enough movement to do that.  You are too tired.": 'sleep',
+            "You don't have enough mana to do that.": 'sleep',
             'You are hungry.': 'sta\neat bread\nsleep',
             'You are thirsty.': 'stand\ndrink sink\ndrink sink\ndrink sink\ndrink sink\nsleep',
             }

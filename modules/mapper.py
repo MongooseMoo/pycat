@@ -266,8 +266,18 @@ class Mapper(BaseModule):
         if path:
             self.send(path.replace(';', '\n'))
 
+    def filterByArgs(self, bookmarks, args):
+        if args:
+            def find(bookmark):
+                return all(map(lambda arg: arg in bookmark, args))
+            filteredKeys = list(filter(find, bookmarks))
+            bookmarks = {x:bookmarks[x] for x in filteredKeys}
+        return bookmarks
+
     def bookmarks(self, args):
-        self.log('Bookmarks:\n' + pprint.pformat(self.m.getBookmarks()))
+        bookmarks = self.filterByArgs(self.m.getBookmarks(), args)
+        for name, num in bookmarks.items():
+            self.show("{}\t{}\n".format(num, name))
 
     def bookmark(self, args):
         arg = ' '.join(args)
@@ -656,8 +666,8 @@ class Mapper(BaseModule):
             self.log("Done!")
 
     def areas(self, args):
-        for name in sorted(self.m.getAreas().keys()):
-            num = self.m.getAreas()[name]
+        areas = self.filterByArgs(self.m.getAreas(), args)
+        for name, num in areas.items():
             self.show("{}\t{}\n".format(num, name))
 
     def delExits(self, args):
@@ -742,6 +752,10 @@ class Mapper(BaseModule):
             self.help(words[2:])
         return True
 
+    def drawMapToFile(self):
+        with open('map.txt', 'wt') as f:
+            f.write(self.draw())
+
     def handleGmcp(self, cmd: str, value: dict):
         # CoffeeMUD's room.info
         # {'coord': {'cont': 0, 'id': 0, 'x': -1, 'y': -1},
@@ -800,4 +814,5 @@ class Mapper(BaseModule):
                     self.log("Autovisiting, but changed areas")
                 else:
                     self.autoVisit(['exit'] if 'autoVisitArea' not in self.world.state else None)
-            # self.show(self.draw())
+
+            self.drawMapToFile()
