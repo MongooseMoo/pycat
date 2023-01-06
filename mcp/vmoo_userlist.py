@@ -9,6 +9,7 @@ class VMooUserlist(McpPackage):
     fields: str = ""
     users: list = []
     afk = moo_grammar.MooList()
+    away = moo_grammar.MooList()
 
     datatag: str = ""
 
@@ -42,12 +43,19 @@ class VMooUserlist(McpPackage):
                         # user online
                         self.users.append(val)
                     case '>':
-                        self.afk.pop(val)
+                        for v in val:
+                            self.afk.remove(v)
                     case '<':
-                        self.afk.append(val)
+                        for v in val:
+                            self.afk.append(v)
+                    case '[':
+                        for v in val:
+                            self.away.append(v)
+                    case ']':
+                        for v in val:
+                            self.away.remove(v)
                     case _:
                         print('unknown d: ' + repr(value))
-
 
             return True
         return super().handleMultiline(tag, key, value)
@@ -60,6 +68,8 @@ class VMooUserlist(McpPackage):
         client.write(f'#$#* {self.datatag} icons: {self.icons}\n')
         client.write('#$#* ' + self.datatag + f' d: ={self.users}\n')
         client.write('#$#* ' + self.datatag + f' d: <{self.afk}\n')
+        client.write('#$#* ' + self.datatag + f' d: [{self.away}\n')
+
 
 
 PACKAGES['dns-com-vmoo-userlist'] = VMooUserlist

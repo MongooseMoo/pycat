@@ -116,6 +116,9 @@ class Session(object):
             if parts[0] == "#$#*":
                 # multiline
                 self.world.handleMcpMultiline(parts[1], parts[2], ' '.join(parts[3:]))
+            elif parts[0] == '#$#:':
+                # terminate multikine
+                pass
             elif parts[1] == 'edit':
                 # Local Edit is built upon MCP 1.0, and doesn't have an auth key
                 return False
