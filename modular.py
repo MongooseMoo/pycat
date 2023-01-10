@@ -102,6 +102,7 @@ class ModularClient(TimerMixin):
         TimerMixin.__init__(self)
         if not hasattr(self, 'modules'):
             self.modules = {}
+        self.autowalk = True
 
         for m in self.modules.values():
             m.world = self
@@ -120,14 +121,15 @@ class ModularClient(TimerMixin):
         # It's possible to move command stacking and spamrepeat into modules, at the cost of horribly complicating
         # everything in this function. Implementing them here results in less overall ugliness.
 
-        sublines = stack(line)
-        if len(sublines) > 1:
-            for subline in sublines:
-                if not self.alias(subline):
-                    self.mud.send(subline)
-            return True
-        else:
-            line = sublines[0]
+        if self.autowalk:
+            sublines = stack(line)
+            if len(sublines) > 1:
+                for subline in sublines:
+                    if not self.alias(subline):
+                        self.mud.send(subline)
+                return True
+            else:
+                line = sublines[0]
 
         if re.match(r'#\d+ .+', line):
             match = re.match(r'#(\d+) (.+)', line)

@@ -56,6 +56,7 @@ class Mongoose(modular.ModularClient):
                 traceback.print_exc()
 
         super().__init__(mud)
+        self.autowalk = False
 
         self.aliases.update(ALIASES)
         self.triggers.update(TRIGGERS)
