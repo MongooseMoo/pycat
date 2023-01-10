@@ -202,7 +202,7 @@ class Session(object):
         self.pipeToSocketW.flush()
 
 
-    def handle_from_pipe(self):
+    def handle_from_pipe(self) -> None:
         data = b''  # to handle partial lines
         try:
             data += os.read(self.socketToPipeR, 4096)
@@ -304,3 +304,4 @@ class Session(object):
             self.log("Closing")
             if self.telnet:
                 self.telnet.close()
+            self.stopFlag.set()
