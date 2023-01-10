@@ -284,7 +284,6 @@ class Session(object):
         else:
             self.telnet = None
 
-
     def run(self) -> None:
         try:
             while True:

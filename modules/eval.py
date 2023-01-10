@@ -5,14 +5,16 @@ from modules.basemodule import BaseModule
 
 
 class Eval(BaseModule):
-    def alias(self, line):
+    locals: dict[str, Any] = {}
+
+    def alias(self, line: str) -> bool:
         if line.startswith('#py '):
             rest = line[4:]
-            self.mud.log("\n" + pformat(eval(rest, self.globals())))
+            self.mud.log("\n" + pformat(eval(rest, self.globals(), self.locals)))
             return True
         elif line.startswith('#pye '):
             rest = line[5:]
-            exec(rest)
+            exec(rest, self.globals(), self.locals)
             return True
 
     def globals(self) -> dict[str, Any]:
