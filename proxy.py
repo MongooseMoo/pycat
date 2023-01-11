@@ -62,7 +62,7 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
     clientPipes: list[int] = []
 
     pipeToSocketBuffer: list[bytes] = []
-    lastTen = collections.deque(maxlen=10)
+    lastTen = collections.deque(maxlen=40)
 
     def remove_socket(fd: Any) -> Client:
         fd.close()
