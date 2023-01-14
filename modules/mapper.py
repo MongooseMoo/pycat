@@ -1,6 +1,5 @@
 import collections
 import json
-import os
 import pprint
 import re
 import time
@@ -694,7 +693,7 @@ class Mapper(BaseModule):
         super().__init__(mud)
         self.drawAreas = drawAreas
         self.spacesInRun = spacesInRun
-        mapfname = os.path.join('data', mapfname)
+        mapfname = mapfname
         self.load([mapfname])
 
         self.commands = {

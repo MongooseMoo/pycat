@@ -31,7 +31,7 @@ class Session(object):
             self.proxyThread = threading.Thread(target=runProxy)
             self.proxyThread.start()
             self.do_connect()
-        except:
+        except Exception:
             self.log("Shutting down")
             self.stopFlag.set()
             self.world.quit()

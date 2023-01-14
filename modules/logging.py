@@ -1,4 +1,3 @@
-import os
 import subprocess
 
 from modules.basemodule import BaseModule
@@ -6,7 +5,7 @@ from modules.basemodule import BaseModule
 
 class Logging(BaseModule):
     def __init__(self, mud, logfname):
-        self.logfname = os.path.join('data', logfname)
+        self.logfname = logfname
         self.file = open(logfname, 'a', buffering=1)
         super().__init__(mud)
 
