@@ -54,8 +54,8 @@ def proxy(bindAddr: str, listenPort: int) -> tuple[int, int, threading.Event, Ca
 
     return socketToPipeR, pipeToSocketW, stop, lambda: serve(socketToPipeW, pipeToSocketR, sock, stop, clients, session_state), clients, session_state
 
-def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: threading.Event, clients: list[Client], session_state: dict[str, Any]) -> None:
-    socketToPipeW = os.fdopen(socketToPipeW, 'wb')
+def serve(PipeW: int, pipeToSocketR: int, sock: socket.socket, stop: threading.Event, clients: list[Client], session_state: dict[str, Any]) -> None:
+    socketToPipeW = os.fdopen(PipeW, 'wb')
 
     clientSockets: list[socket.socket] = []
     clientStates: dict[socket.socket, Client] = {}
@@ -74,7 +74,7 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
         clientPipes.remove(c.oob_out[0])
         return c
 
-    def accept(sock: socket.socket) -> None:
+    def accept_new_client(sock: socket.socket) -> None:
         print("new client")
         if SINGLE_CLIENT and clientSockets:  # If the user doesn't want to be connected with two clients at once.
             print("booting old client")
@@ -91,35 +91,37 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
             clientSocket.sendall(item)
         pipeToSocketBuffer.clear()
 
+    def handle_client_input(fd: socket.socket) -> None:
+        try:
+            data: bytes = fd.recv(4096)
+            if not data:  # disconnect
+                remove_socket(fd)
+                print("socket disconnected")
+            else:
+                if data.startswith(b'#$#'):
+                    s = clientStates[fd]
+                    data = s.handle_inbound_mcp(data)
+                    if 'mcp_key' not in session_state and 'mcp_key' in s.state:
+                        session_state['mcp_key'] = s.state['mcp_key']
+                        # todo replace client key with session key
+                    elif (ckey := s.state.get('mcp_key')) != (skey := session_state.get('mcp_key')) and ckey and skey:
+                        data.replace(ckey.encode('utf-8'), skey.encode('utf-8'))
+                socketToPipeW.write(data)  # TODO: partial writes?
+                socketToPipeW.flush()
+        except TimeoutError:
+            remove_socket(fd)
+            print("Socket timed out")
+        except OSError as e:
+            remove_socket(fd)
+            print(e)
+
     while not stop.is_set():
         fds, _, _ = select([sock, pipeToSocketR] + clientSockets + clientPipes, [], [])
         for fd in fds:
             if fd == sock:
-                accept(sock)
+                accept_new_client(sock)
             elif fd in clientSockets:
-                try:
-                    data: bytes = fd.recv(4096)
-                    if not data:  # disconnect
-                        remove_socket(fd)
-                        print("socket disconnected")
-                    else:
-                        if data.startswith(b'#$#'):
-                            s = clientStates[fd]
-                            data = s.handle_inbound_mcp(data)
-                            if 'mcp_key' not in session_state and 'mcp_key' in s.state:
-                                session_state['mcp_key'] = s.state['mcp_key']
-                                # todo replace client key with session key
-                            elif (ckey := s.state.get('mcp_key')) != (skey := session_state.get('mcp_key')) and ckey and skey:
-                                data.replace(ckey.encode('utf-8'), skey.encode('utf-8'))
-                        socketToPipeW.write(data)  # TODO: partial writes?
-                        socketToPipeW.flush()
-                except TimeoutError:
-                    remove_socket(fd)
-                    print("Socket timed out")
-                except OSError as e:
-                    remove_socket(fd)
-                    print(e)
-
+                handle_client_input(fd)
             elif fd == pipeToSocketR:
                 data = os.read(pipeToSocketR, 4096)
                 if not data:
