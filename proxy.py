@@ -127,8 +127,15 @@ def serve(socketToPipeW: int, pipeToSocketR: int, sock: socket.socket, stop: thr
                     break
                 lastTen.append(data)
                 if clientSockets:
-                    for clientSocket in clientSockets:
-                        clientSocket.sendall(data)  # TODO: partial writes?
+                    for clientSocket in list(clientSockets):
+                        try:
+                            clientSocket.sendall(data)  # TODO: partial writes?
+                        except TimeoutError:
+                            remove_socket(clientSocket)
+                            print("client timed out")
+                        except OSError as e:
+                            remove_socket(clientSocket)
+                            print(e)
                 else:
                     pipeToSocketBuffer.append(data)
             elif fd in clientPipes:
