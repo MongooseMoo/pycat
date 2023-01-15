@@ -777,13 +777,13 @@ class Mapper(BaseModule):
         #  'terrain': 'Temperate Building',
         #  'zone': '13'}
 
-        # Mongoose's Room.Info
+        # LambdaMOO's Room.Info
         # {
-        #   'area': 'Ravenswood Estate',
-        #   'exits': {'east': 3993},
-        #   'name': 'A Large Bedroom',
-        #   'num': 3995}
-
+        #   'area': 'Toint Town',
+        #   'exits': {'east': 2029, 'north': 442, 'south': 665, 'west': 590},
+        #   'name': 'a shaded street',
+        #   'num': 662
+        # }
         if cmd.lower() == 'room.info':
             id = roomnr(value['num'])
             if 'visited' not in self.world.state:
