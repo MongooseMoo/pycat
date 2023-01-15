@@ -4,6 +4,11 @@ from modules.basemodule import BaseModule
 
 
 class FileEdit(BaseModule):
+    """
+    Use your mud client's builtin editor to modify files.
+
+    This is only really useful if pycat isn't running on the same machine as your client.
+    """
     open_file = None
 
     def alias(self, line: str) -> bool:

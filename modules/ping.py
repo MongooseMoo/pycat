@@ -18,6 +18,3 @@ class Ping(BaseModule):
     def ping(self, mud) -> None:
         if mud.mud.telnet:
             mud.mud.telnet.sock.sendall(telnetlib.AYT)
-        # mud.mud.pipeToSocketW.write(telnetlib.AYT)
-        # mud.mud.pipeToSocketW.flush()
-        # print('Sent AreYouThere packet')
