@@ -16,6 +16,7 @@ class Eval(BaseModule):
             rest = line[5:]
             exec(rest, self.globals(), self.locals)
             return True
+        return False
 
     def globals(self) -> dict[str, Any]:
         return {
