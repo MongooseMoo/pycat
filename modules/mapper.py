@@ -4,6 +4,7 @@ import pprint
 import re
 import time
 
+import anyascii
 from modules.basemodule import BaseModule
 
 
@@ -728,6 +729,7 @@ class Mapper(BaseModule):
                 'startroom': self.startRoom,
                 'nodraw': self.noDraw,
                 'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
+                'ascii': lambda _: self.show(anyascii.anyascii(self.draw())) ,
             }
 
         # for creating custom exits

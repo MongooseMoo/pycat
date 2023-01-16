@@ -9,6 +9,7 @@ requests = "*"
 attrs = "*"
 lark = "*"
 traceback-with-variables = "*"
+anyascii = "*"
 
 [dev-packages]
 flake8 = "*"

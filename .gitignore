@@ -16,3 +16,4 @@ __pycache__
 /passwords.json
 /passwords_*.json
 /data/passwords_*.json
+map.txt
