@@ -126,7 +126,24 @@ class Session(object):
                 pass
             else:
                 replace_auth = True
-                self.world.handleMcp(parts[0][3:], {parts[i].strip(':'): parts[i + 1] for i in range(2, len(parts), 2)}, line)
+                vars = {}
+                k = ''
+                v = ''
+                for p in parts[2:]:
+                    if p.endswith(':'):
+                        if k:
+                            if v.startswith('""') and v.endswith('""'):
+                                v = v.strip('"')
+                            vars[k] = v
+                        k = p[:-1]
+                        v = ''
+                    else:
+                        if v.startswith('"'):
+                            v += f' {p}'
+                        else:
+                            v = p
+
+                self.world.handleMcp(parts[0][3:], vars, line)
         except Exception as e:
             print(f'MCP Error: {e}')
             traceback_with_variables.print_exc(e)
