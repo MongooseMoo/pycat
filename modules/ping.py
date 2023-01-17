@@ -6,7 +6,7 @@ from modules.basemodule import BaseModule
 
 class Ping(BaseModule):
     """
-    Periodically sends an AYT (Are you there) package, to ensure NAT'd connections aren't closed for being silent too long.
+    Periodically sends an AYT (Are you there) packet, to ensure NAT'd connections aren't closed for being silent too long.
 
     We use an AYT so that the mud doesn't update the idle time of the player.
     """
