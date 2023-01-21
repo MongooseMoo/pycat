@@ -154,7 +154,7 @@ class Session(object):
             elif client.has_mcp is None:
                 # Initialize them
                 client.has_mcp = False
-                client.write("#$#mcp version: 2.1 to: 2.1")
+                client.write("#$#mcp version: 2.1 to: 2.1\n")
             if replace_auth:
                 parts[1] = client.state.get('mcp_key', parts[1])
             client.write(' '.join(parts) + '\n')
