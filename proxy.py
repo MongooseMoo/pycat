@@ -8,6 +8,7 @@ from select import select
 from typing import Any, Callable
 
 import attrs
+import mudtelnet
 
 SINGLE_CLIENT = False
 
@@ -22,6 +23,7 @@ class Client():
     state: dict = attrs.field(factory=dict)
 
     pipe_write = None
+    connection = mudtelnet.TelnetConnection(app_linemode=False)
 
     def write(self, line: bytes | str) -> None:
         if isinstance(line, str):
@@ -87,6 +89,9 @@ def serve(PipeW: int, pipeToSocketR: int, sock: socket.socket, stop: threading.E
         clients.append(state)
         clientStates[clientSocket] = state
         clientPipes.append(state.oob_out[0])
+        neg = bytearray()
+        state.connection.start(neg)
+        clientSocket.sendall(neg)
         for item in pipeToSocketBuffer or lastTen:
             clientSocket.sendall(item)
         pipeToSocketBuffer.clear()
@@ -98,16 +103,30 @@ def serve(PipeW: int, pipeToSocketR: int, sock: socket.socket, stop: threading.E
                 remove_socket(fd)
                 print("socket disconnected")
             else:
-                if data.startswith(b'#$#'):
-                    s = clientStates[fd]
-                    data = s.handle_inbound_mcp(data)
-                    if 'mcp_key' not in session_state and 'mcp_key' in s.state:
-                        session_state['mcp_key'] = s.state['mcp_key']
-                        # todo replace client key with session key
-                    elif (ckey := s.state.get('mcp_key')) != (skey := session_state.get('mcp_key')) and ckey and skey:
-                        data.replace(ckey.encode('utf-8'), skey.encode('utf-8'))
-                socketToPipeW.write(data)  # TODO: partial writes?
-                socketToPipeW.flush()
+                s = clientStates[fd]
+                b = data
+                while b:
+                    frame, size = mudtelnet.TelnetFrame.parse(b)
+                    out_buffer = bytearray()
+                    out_events = list()
+                    changed = s.connection.process_frame(frame, out_buffer, out_events)
+                    if changed:
+                        print(repr(changed))
+                        s.state.update(changed)
+                    for e in out_events:
+                        if isinstance(e, mudtelnet.TelnetInMessage):
+                            if e.data.startswith(b'#$#'):
+                                e.data = s.handle_inbound_mcp(e.data)
+                                if 'mcp_key' not in session_state and 'mcp_key' in s.state:
+                                    session_state['mcp_key'] = s.state['mcp_key']
+                                    # todo replace client key with session key
+                                elif (ckey := s.state.get('mcp_key')) != (skey := session_state.get('mcp_key')) and ckey and skey:
+                                    e.data.replace(ckey.encode('utf-8'), skey.encode('utf-8'))
+                            socketToPipeW.write(bytes(e.data))
+                            socketToPipeW.flush()
+                        else:
+                            print('!! ' + repr(e))
+                    b = b[size:]
         except TimeoutError:
             remove_socket(fd)
             print("Socket timed out")

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "626acea1c33022316aa81b31f1b36b16a6ec1560b71bba87dacaada4eaef6adc"
+            "sha256": "2d01a8779850776deb5d1f750433f53765cbfb21d29b370c878abaa196099ea4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -165,6 +165,14 @@
             ],
             "index": "pypi",
             "version": "==1.1.5"
+        },
+        "mudtelnet": {
+            "hashes": [
+                "sha256:0b52276fda733cf937f650ddfc4d0326fc688aac63a10b6f30249361f5db0fc1",
+                "sha256:e9f94a89d42810a602787438c67d1a74ecc3d67f12ec2cc694399cf3b9cc2f18"
+            ],
+            "index": "pypi",
+            "version": "==0.8.0"
         },
         "requests": {
             "hashes": [

@@ -10,6 +10,7 @@ attrs = "*"
 lark = "*"
 traceback-with-variables = "*"
 anyascii = "*"
+mudtelnet = "*"
 
 [dev-packages]
 flake8 = "*"

@@ -15,6 +15,7 @@ from proxy import proxy
 from requests.structures import CaseInsensitiveDict
 
 telnetlib.GMCP = b'\xc9'  # type: ignore
+telnetlib.MSSP = b'\x46'  # type: ignore
 
 
 class Session(object):
@@ -69,16 +70,28 @@ class Session(object):
                 self.log("Sending terminal type 'Cizra'")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option +
                         telnetlib.IAC + telnetlib.SB + telnetlib.TTYPE + telnetlib.BINARY + b'Cizra' + telnetlib.IAC + telnetlib.SE)
-
+            elif option == telnetlib.MSSP:
+                print('Enabling MSSP')
+                sock.sendall(telnetlib.IAC + telnetlib.DO + option)
             else:
                 sock.sendall(telnetlib.IAC + telnetlib.DONT + option)
+                print(f'IAC DONT {option}')
         elif cmd == telnetlib.SE:
             data = self.telnet.read_sb_data()
-            if data and data[0] == ord(telnetlib.GMCP):
-                try:
+            try:
+                if data and data[0] == ord(telnetlib.GMCP):
                     self.handleGmcp(data[1:].decode(self.mud_encoding))
-                except Exception as e:
-                    traceback.print_exc()
+                elif data and data[0] == ord(telnetlib.MSSP):
+                    self.session_state['mssp'] = {}
+                    for kv in data[2:].split(b'\x01'):
+                        kp = kv.split(b'\x02')
+                        self.session_state['mssp'][kp[0].decode()] = kp[1].decode()
+                    # print(f"MSSP: {self.session_state['mssp']!r}")
+                else:
+                    print(repr(data))
+            except Exception as e:
+                traceback.print_exc()
+
 
     def handleGmcp(self, data):
         # this.that {JSON blob}
