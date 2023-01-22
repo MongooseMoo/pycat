@@ -84,13 +84,15 @@ class Session(object):
                 elif data and data[0] == ord(telnetlib.MSSP):
                     self.session_state['mssp'] = {}
                     for kv in data[2:].split(b'\x01'):
+                        if not kv:
+                            continue
                         kp = kv.split(b'\x02')
                         self.session_state['mssp'][kp[0].decode()] = kp[1].decode()
                     # print(f"MSSP: {self.session_state['mssp']!r}")
                 else:
                     print(repr(data))
             except Exception as e:
-                traceback.print_exc()
+                traceback_with_variables.print_exc()
 
 
     def handleGmcp(self, data):
@@ -124,7 +126,7 @@ class Session(object):
         # self.show(line + '\n')
 
         replace_auth = False
-        parts = line.strip().split(' ')
+        parts = line.strip().strip('\r').split(' ')
         try:
             if parts[0] == "#$#*":
                 # multiline
@@ -155,6 +157,7 @@ class Session(object):
                             v += f' {p}'
                         else:
                             v = p
+                vars[k] = v
 
                 self.world.handleMcp(parts[0][3:], vars, line)
         except Exception as e:
