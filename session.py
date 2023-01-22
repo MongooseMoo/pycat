@@ -67,9 +67,9 @@ class Session(object):
                 self.gmcpOut('request room')
                 self.gmcpOut('request char')
             elif option == telnetlib.TTYPE:
-                self.log("Sending terminal type 'Cizra'")
+                self.log("Sending terminal type 'pycat'")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option +
-                        telnetlib.IAC + telnetlib.SB + telnetlib.TTYPE + telnetlib.BINARY + b'Cizra' + telnetlib.IAC + telnetlib.SE)
+                        telnetlib.IAC + telnetlib.SB + telnetlib.TTYPE + telnetlib.BINARY + b'pycat' + telnetlib.IAC + telnetlib.SE)
             elif option == telnetlib.MSSP:
                 print('Enabling MSSP')
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option)
