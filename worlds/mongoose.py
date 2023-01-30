@@ -6,6 +6,7 @@ import typing
 
 import modular
 import modules.eval
+import modules.file_editor
 import modules.logging
 import modules.mapper
 import modules.ping
@@ -44,7 +45,8 @@ class Mongoose(modular.ModularClient):
             # "repeat": (modules.repeat.Repeat, []),
             "logging": (modules.logging.Logging, [self.logfname]),
             "mapper": (modules.mapper.Mapper, [True, self.mapfname, True]),
-            "ping": (modules.ping.Ping, [])
+            "ping": (modules.ping.Ping, []),
+            "file_edit": (modules.file_editor.FileEdit, []),
         }
 
         for modname, module in mods.items():

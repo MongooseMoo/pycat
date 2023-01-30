@@ -30,7 +30,7 @@ def deep_update(mapping: dict[KeyType, Any], *updating_mappings: dict[KeyType, A
 class Client():
     fd: socket.socket = attrs.field(repr=False)
     addr: tuple[str, int]
-    oob_out: tuple[int, int]
+    oob_out: tuple[int, int] = attrs.field(repr=False)
     has_gmcp: bool | None = None
     has_mcp: bool | None = None
     state: dict = attrs.field(factory=dict)
