@@ -507,7 +507,7 @@ class Mapper(BaseModule):
         self.exitFrom['exits'] = {}
         self.exitFrom['id'] = nr
         self.exitFrom['name'] = room['name']
-        self.exitFrom['data'] = dict(zone=room['zone'], terrain = room['terrain'])
+        self.exitFrom['data'] = dict(zone=room['zone'], terrain=room['terrain'])
         for k, v in room['exits'].items():
             self.exitFrom['exits'][k.lower()] = {'tgt': roomnr(v)}
         self.log("Type '#map endexit' when you're in the right room, or #map endexit abort")
@@ -818,3 +818,9 @@ class Mapper(BaseModule):
                     self.autoVisit(['exit'] if 'autoVisitArea' not in self.world.state else None)
 
             self.drawMapToFile()
+        if cmd.lower() == 'room.wrongdir':
+            exits = self.m.getRoomExits(self.current())
+            if value not in exits:
+                # User error
+                return
+            del exits[value]
