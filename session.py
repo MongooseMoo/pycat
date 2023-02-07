@@ -26,9 +26,10 @@ class Session(object):
         self.arg = arg
         self.world: ModularClient = world_module.getClass()(self, self.arg)
         self.terminate_on_disconnect = terminate_on_disconnect
+        self.mcp_debug = False
         try:
-            self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy, self.clients, self.session_state = proxy(bindAddr, port)
-            self.pipeToSocketW = os.fdopen(self.pipeToSocketW, 'wb')
+            self.socketToPipeR, pipeToSocketW, self.stopFlag, runProxy, self.clients, self.session_state = proxy(bindAddr, port)
+            self.pipeToSocketW = os.fdopen(pipeToSocketW, 'wb')
             self.proxyThread = threading.Thread(target=runProxy)
             self.proxyThread.start()
             self.do_connect()
@@ -44,10 +45,8 @@ class Session(object):
         else:
             line = pprint.pformat(args)
         if bar:
-            self.pipeToSocketW.write("---------\n".encode(self.client_encoding))
-        self.pipeToSocketW.write(line.encode(self.client_encoding))
-        self.pipeToSocketW.write(b"\n")
-        self.pipeToSocketW.flush()
+            line = "---------\n" + line
+        self.show(line.encode(self.client_encoding) + b"\n")
 
     def strip_ansi(self, line):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
@@ -125,6 +124,8 @@ class Session(object):
         # #$#* <datatag> <single-keyval>
         # self.show(line + '\n')
 
+        if self.mcp_debug:
+            print(line)
         replace_auth = False
         parts = line.strip().strip('\r').split(' ')
         try:
@@ -226,12 +227,16 @@ class Session(object):
                 if replacement is not None:
                     line = replacement
             prn.append(line)
-        self.pipeToSocketW.write('\n'.join(prn).encode(self.mud_encoding))
-        self.pipeToSocketW.flush()
+        self.show('\n'.join(prn).encode(self.mud_encoding))
 
 
-    def show(self, line: str) -> None:
-        self.pipeToSocketW.write(line.encode(self.client_encoding))
+    def show(self, line: str | bytes) -> None:
+        if isinstance(line, str):
+            line = line.encode(self.client_encoding)
+        if self.clients:
+            for client in self.clients:
+                client.write(line)
+        self.pipeToSocketW.write(line)
         self.pipeToSocketW.flush()
 
 

@@ -160,17 +160,7 @@ def serve(PipeW: int, pipeToSocketR: int, sock: socket.socket, stop: threading.E
                     print("EOF from pipe")
                     break
                 lastTen.append(data)
-                if clientSockets:
-                    for clientSocket in list(clientSockets):
-                        try:
-                            clientSocket.sendall(data)  # TODO: partial writes?
-                        except TimeoutError:
-                            remove_socket(clientSocket)
-                            print("client timed out")
-                        except OSError as e:
-                            remove_socket(clientSocket)
-                            print(e)
-                else:
+                if not clientSockets:
                     pipeToSocketBuffer.append(data)
             elif fd in clientPipes:
                 state = [c for c in clientStates.values() if c.oob_out[0] == fd][0]
