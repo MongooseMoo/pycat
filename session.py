@@ -201,6 +201,7 @@ class Session(object):
                 self.world.quit()
                 self.stopFlag.set()
                 raise
+            self.session_state.clear()
             return
         try:
             data = data.decode(self.mud_encoding)
@@ -229,7 +230,6 @@ class Session(object):
             prn.append(line)
         self.show('\n'.join(prn).encode(self.mud_encoding))
 
-
     def show(self, line: str | bytes) -> None:
         if isinstance(line, str):
             line = line.encode(self.client_encoding)
@@ -238,7 +238,6 @@ class Session(object):
                 client.write(line)
         self.pipeToSocketW.write(line)
         self.pipeToSocketW.flush()
-
 
     def handle_from_pipe(self) -> None:
         data = b''  # to handle partial lines
