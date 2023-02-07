@@ -102,6 +102,9 @@ def serve(PipeW: int, pipeToSocketR: int, sock: socket.socket, stop: threading.E
         clients.append(state)
         clientStates[clientSocket] = state
         clientPipes.append(state.oob_out[0])
+        if session_state.get('mcp_key'):
+            clientSocket.sendall(b"\n#$#mcp version: 2.1 to: 2.1\n")
+            state.has_mcp = False
         neg = bytearray()
         state.connection.start(neg)
         clientSocket.sendall(neg)
