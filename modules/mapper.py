@@ -810,7 +810,7 @@ class Mapper(BaseModule):
             self.m.addRoom(id, name, data, exits)
 
             if 'autoVisitTarget' in self.world.state and self.world.state['autoVisitTarget'] == id:
-                if 'char' in self.world.gmcp and self.world.gmcp['char']['vitals']['moves'] < 60:
+                if 'char' in self.world.gmcp and 'vitals' in self.world.gmcp['char'] and self.world.gmcp['char']['vitals'].get('moves', 999) < 60:
                     self.log("Autovisiting, but near out of moves")
                 elif 'autoVisitArea' in self.world.state and self.world.state['autoVisitArea'] != self.currentArea():
                     self.log("Autovisiting, but changed areas")
