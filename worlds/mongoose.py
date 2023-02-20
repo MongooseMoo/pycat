@@ -14,6 +14,7 @@ import modules.ping
 import modules.repeat
 
 importlib.reload(modular)
+importlib.reload(modules.commlog)
 importlib.reload(modules.logging)
 importlib.reload(modules.eval)
 importlib.reload(modules.repeat)

@@ -17,11 +17,11 @@ class CommLog(BaseModule):
     #         f.write(self.draw())
 
     def handleGmcp(self, cmd: str, value):
-        if cmd.lower() == 'comm.channel':
+        if cmd.lower() in ['comm.channel', 'comm.channel.text']:
             channel = value.get('chan') or value['channel']
             msg = value.get('msg') or value['text']
             player = value.get('player') or value['talker']
-            log("Got comm.channel with {}".format(msg))
+            log("Got {} with {}".format(cmd, msg))
             self.write(f'[{channel}] {player}: {msg}')
 
     def write(self, msg):
