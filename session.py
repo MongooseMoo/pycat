@@ -60,8 +60,8 @@ class Session(object):
             if option == telnetlib.GMCP:
                 self.log("Enabling GMCP")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option)
-                self.gmcpOut('Core.Hello { "client": "Cizra", "version": "1" }')
-                supportables = ['char 1', 'char.base 1', 'char.maxstats 1', 'char.status 1', 'char.statusvars 1', 'char.vitals 1', 'char.worth 1', 'comm 1', 'comm.tick 1', 'group 1', 'room 1', 'room.info 1']
+                # self.gmcpOut('Core.Hello { "client": "Cizra", "version": "1" }')
+                supportables = ['char 1', 'char.base 1', 'char.maxstats 1', 'char.status 1', 'char.statusvars 1', 'char.vitals 1', 'char.worth 1', 'comm 1', 'comm.channel 1', 'comm.tick 1', 'group 1', 'room 1', 'room.info 1']
                 self.gmcpOut('Core.Supports.Set ' + str(supportables).replace("'", '"'))
                 self.gmcpOut('request room')
                 self.gmcpOut('request char')
@@ -189,7 +189,7 @@ class Session(object):
             self.log("Not Connected.")
             return
         print("> ", line)
-        self.telnet.write((line + '\n').encode(self.mud_encoding))
+        self.telnet.write((line + '\n').encode(self.mud_encoding, errors="replace"))
 
     def handle_from_telnet(self) -> None:
         try:

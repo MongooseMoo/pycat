@@ -2,11 +2,11 @@
 from modules.basemodule import BaseModule
 
 # start with at least 10 charisma, max int and wis
-# At level 1, train scholar, practice write
+# At level 1, train scholar, practice write, prac floristry
 # At level 2, write book
 # At level 3, gain engraving and embroidering, prac herbology
 # At level 4, gain combat log
-#(# At level 5, gain organizing)
+# At level 5, organizing
 # At level 7, gain find home
 # At level 10, gain wilderness lore
 # At level 11, gain book naming
@@ -14,15 +14,14 @@ from modules.basemodule import BaseModule
 # At level 14, gain make maps
 # At level 16, gain plant lore
 # At level 22, gain planar lore
-# At level 30, gain master herbology
+# At level 30, gain master herbology and master floristry
 
 # TODO: book loaning
 
 skills_by_level = {
-        1: ['herb herb'],
+        1: ['herb herb', 'florist flower'],
         2: ['label book', 'engrave bowl bowl', 'embroider sock sock'],
-        3: ['light fire', 'combatlog self', 'combatlog stop'],
-        5: ['organ room name'],#, 'smokesig testing testing 1 2 3'],
+        3: ['light fire', 'combatlog self', 'combatlog stop', 'organ room name'],#'smokesig testing testing 1 2 3'],
         6: ['entitle book book', 'findhome'],
         7: ['bookedit book', 'knowplant herb'],
         9: ['wlore', 'transcribe paper book'],
@@ -34,7 +33,7 @@ skills_by_level = {
         18: ['recollect happy'],
         21: ['plore astral'],
         22: ['survey room book'],
-        29: ['mherb herb'],
+        29: ['mherb herb', 'mflo flo'],
         }
 
 def write(mud, lag=1):
@@ -170,6 +169,15 @@ class Scholar(BaseModule):
             'You are hungry.': 'sta\neat bread\nsleep',
             'You are thirsty.': 'stand\ndrink sink\ndrink sink\ndrink sink\ndrink sink\nsleep',
             }
+
+    def getOneTimeTriggers(self):
+        if self.world.name == 'grumpy':
+            return {}
+        else:
+            return {
+                    '^\(You are asleep\)$': 'stand',
+                    '^Grumpy appears!$': 'fol grumpy\nsleep',
+                    }
 
     def getTimers(self):
         return {

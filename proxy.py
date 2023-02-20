@@ -143,6 +143,8 @@ def serve(PipeW: int, pipeToSocketR: int, sock: socket.socket, stop: threading.E
                         else:
                             print('!! ' + repr(e))
                     b = b[size:]
+        except ConnectionResetError:
+            pass
         except TimeoutError:
             remove_socket(fd)
             print("Socket timed out")
