@@ -1,11 +1,5 @@
+
 from modules.basemodule import BaseModule
-import collections
-import json
-import os
-import pprint
-import re
-import shutil
-import time
 
 
 def log(*args, **kwargs):
@@ -22,15 +16,14 @@ class CommLog(BaseModule):
     #     with open('map.txt', 'wt') as f:
     #         f.write(self.draw())
 
-    def handleGmcp(self, cmd, value):
-        if cmd == 'comm.channel':
-            channel = value['chan']
-            msg = value['msg']
-            player = value['player']
+    def handleGmcp(self, cmd: str, value):
+        if cmd.lower() == 'comm.channel':
+            channel = value.get('chan') or value['channel']
+            msg = value.get('msg') or value['text']
+            player = value.get('player') or value['talker']
             log("Got comm.channel with {}".format(msg))
-            self.write(msg)
+            self.write(f'[{channel}] {player}: {msg}')
 
     def write(self, msg):
         with open(self.fname, 'a') as f:
             f.write(msg + '\n')
-
