@@ -141,7 +141,9 @@ class Session(object):
                 # Local Edit is built upon MCP 1.0, and doesn't have an auth key
                 return False
             elif parts[0] == '#$#mcp' and parts[1] == 'version:':
-                pass
+                if not self.clients:  # nobody connected yet, defer it
+                    self.pipeToSocketW.write((line + '\n').encode())
+                    self.pipeToSocketW.flush()
             else:
                 replace_auth = True
                 vars = {}

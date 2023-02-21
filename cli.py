@@ -10,6 +10,7 @@ if not os.path.exists('data'):
     os.mkdir('data')
 os.chdir('data')
 
+
 @click.command()
 @click.option("--bind", default=os.environ.get('PYCAT_BIND', 'localhost'), help='Bind Address', show_default=True)
 @click.option('--terminate-on-disconnect', is_flag=True, help='Quit pycat when the MUD disconnects')
