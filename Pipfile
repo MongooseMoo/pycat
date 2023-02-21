@@ -20,4 +20,5 @@ mypy = "*"
 python_version = "3.11"
 
 [scripts]
+cli = "python cli.py"
 pycat = "python pycat.py"
