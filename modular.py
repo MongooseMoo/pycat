@@ -1,7 +1,6 @@
 import re
 import threading
 import time
-import traceback
 
 from mcp.mcp_negotiate import Negotiate
 from requests.structures import CaseInsensitiveDict
@@ -62,11 +61,11 @@ class TimerMixin(object):
                         fn(self)
                     except Exception as e:
                         self.log(e)
-                        traceback.print_exc()
+                        self.mud.logException(e)
         except RuntimeError as e:
             # RuntimeError: dictionary changed size during iteration
             self.log(e)
-            traceback.print_exc()
+            self.mud.logException(e)
 
         for name in remove:
             del self.timers[name]
@@ -202,7 +201,7 @@ class ModularClient(TimerMixin):
                     module.handleGmcp(cmd, value)
                 except Exception as e:
                     self.log("Exception in handleGmcp of {}: {}".format(module, e))
-                    traceback.print_exc()
+                    self.mud.logException(e)
 
     def handleMcp(self, name: str, keys: dict[str, str], line: str) -> bool:
         for package in self.mcp:

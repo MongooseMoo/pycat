@@ -22,7 +22,7 @@ class Evennia(modular.ModularClient):
 
         self.name = name
         self.logfname = '{}.log'.format(name)
-        self.mapfname = 'evennia.map'.format(name)
+        self.mapfname = 'evennia.map'
 
         self.modules = {}
         mods = {
