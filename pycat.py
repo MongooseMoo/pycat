@@ -174,7 +174,7 @@ class Session(object):
                 self.world.handleMcp(parts[0][3:], vars, line)
         except Exception as e:
             print(f'MCP Error: {e}')
-            traceback_with_variables.print_exc(e)
+            self.logException(e)
 
         for client in self.clients:
             if client.has_mcp is False:
