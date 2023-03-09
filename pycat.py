@@ -5,12 +5,13 @@ import json
 import os
 import pprint
 import re
+import sys
 import telnetlib
 import threading
-import traceback
 from select import select
 from types import ModuleType
 
+import sentry_sdk
 import traceback_with_variables
 from modular import ModularClient
 from proxy import proxy
@@ -19,6 +20,7 @@ from requests.structures import CaseInsensitiveDict
 telnetlib.GMCP = b'\xc9'  # type: ignore
 telnetlib.MSSP = b'\x46'  # type: ignore
 
+sentry_sdk.init(dsn=os.environ.get('SENTRY_DSN'))
 
 class Session(object):
     def __init__(self, world_module: ModuleType, port: int, arg: str, bindAddr: str, terminate_on_disconnect: bool) -> None:
@@ -35,7 +37,8 @@ class Session(object):
             self.proxyThread = threading.Thread(target=runProxy)
             self.proxyThread.start()
             self.do_connect()
-        except Exception:
+        except Exception as e:
+            self.logException(e)
             self.log("Shutting down")
             self.stopFlag.set()
             self.world.quit()
@@ -49,6 +52,10 @@ class Session(object):
         if bar:
             line = "---------\n" + line
         self.show(line.encode(self.client_encoding) + b"\n")
+
+    def logException(self, exception) -> None:
+        traceback_with_variables.print_exc()
+        sentry_sdk.capture_exception(exception)
 
     def strip_ansi(self, line):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
@@ -93,7 +100,7 @@ class Session(object):
                 else:
                     print(repr(data))
             except Exception as e:
-                traceback_with_variables.print_exc()
+                self.logException(e)
 
 
     def handleGmcp(self, data):
@@ -210,6 +217,7 @@ class Session(object):
         try:
             data = data.decode(self.mud_encoding)
         except UnicodeError as e:
+            self.logException(e)
             print("Unicode error:", e)
             print("Data was:", data)
             data = ''
@@ -228,7 +236,7 @@ class Session(object):
                 try:
                     replacement = self.world.trigger(line.strip())
                 except Exception as e:
-                    traceback.print_exc()
+                    self.logException(e)
                 if replacement is not None:
                     line = replacement
             prn.append(line)
@@ -282,7 +290,7 @@ class Session(object):
                 if self.telnet is None:
                     self.do_connect()
             except Exception:
-                traceback.print_exc()
+                self.logException(e)
             return
         elif data.startswith('#connect '):
             world = data[9:]
@@ -304,14 +312,14 @@ class Session(object):
                     package.newClient(c)
             except Exception as e:
                 self.log("Exception in handle_output_line():", e)
-                traceback.print_exc()
+                self.logException(e)
         else:
             handled = False
             try:
                 handled = self.world.alias(data)
             except Exception as e:
                 self.log("Exception in handle_output_line():", e)
-                traceback.print_exc()
+                self.logException(e)
             else:
                 if not handled:
                     self.send(data)
@@ -340,7 +348,7 @@ class Session(object):
                         self.handle_from_pipe()
         except Exception as e:
             self.log("Exception in run():", e)
-            traceback.print_exc()
+            self.logException(e)
         finally:
             self.log("Closing")
             if self.telnet:

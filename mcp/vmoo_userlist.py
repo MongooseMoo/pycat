@@ -8,6 +8,7 @@ class VMooUserlist(McpPackage):
     icons: str = ""
     fields: str = ""
     users: list = []
+    menu: str = ""
     afk = moo_grammar.MooList()
     away = moo_grammar.MooList()
 
@@ -17,8 +18,13 @@ class VMooUserlist(McpPackage):
     def handle(self, name, args) -> bool:
         if name == 'dns-com-vmoo-userlist-you':
             self.user = args['nr']
+            return True
         elif name == 'dns-com-vmoo-userlist':
             self.datatag = args['_data-tag']
+            return True
+        elif name == "dns-com-vmoo-userlist-menu":
+            self.menu = args['menu']
+            return True
         return super().handle(name, args)
 
     def handleMultiline(self, tag, key, value) -> bool:

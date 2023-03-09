@@ -11,6 +11,7 @@ lark = "*"
 traceback-with-variables = "*"
 anyascii = "*"
 mudtelnet = "*"
+sentry-sdk = "*"
 
 [dev-packages]
 flake8 = "*"
