@@ -8,6 +8,7 @@ from select import select
 from typing import Any, Callable, TypeVar
 
 import attrs
+import mcp
 import mudtelnet
 
 SINGLE_CLIENT = False
@@ -34,6 +35,7 @@ class Client():
     has_gmcp: bool | None = None
     has_mcp: bool | None = None
     state: dict = attrs.field(factory=dict)
+    supported_mcp_packages: dict = attrs.field(factory=dict)
 
     pipe_write = None
     connection = mudtelnet.TelnetConnection(app_linemode=False)
@@ -47,10 +49,13 @@ class Client():
         self.pipe_write.flush()
 
     def handle_inbound_mcp(self, line: bytes) -> bytes:
-        parts = line.split(b' ')
+        parts = line.strip().split(b' ')
         if parts[0] == b'#$#mcp' and parts[1] == b'authentication-key:':
             self.has_mcp = True
             self.state["mcp_key"] = parts[2].decode('utf-8')
+        elif parts[0] == b'#$#mcp-negotiate-can':
+            vals = mcp.parse_mcp_vars(parts)
+            self.supported_mcp_packages[vals['package']] = (vals['min-version'], vals['max-version'])
         return line
 
 # returns anonymous pipes (readableFromClient, writableToClient)

@@ -10,6 +10,7 @@ import telnetlib
 import threading
 from select import select
 from types import ModuleType
+import mcp
 
 import sentry_sdk
 import traceback_with_variables
@@ -153,24 +154,7 @@ class Session(object):
                     self.pipeToSocketW.flush()
             else:
                 replace_auth = True
-                vars = {}
-                k = ''
-                v = ''
-                for p in parts[2:]:
-                    if p.endswith(':'):
-                        if k:
-                            if v.startswith('""') and v.endswith('""'):
-                                v = v.strip('"')
-                            vars[k] = v
-                        k = p[:-1]
-                        v = ''
-                    else:
-                        if v.startswith('"'):
-                            v += f' {p}'
-                        else:
-                            v = p
-                vars[k] = v
-
+                vars = mcp.parse_mcp_vars(parts)
                 self.world.handleMcp(parts[0][3:], vars, line)
         except Exception as e:
             print(f'MCP Error: {e}')
@@ -256,7 +240,7 @@ class Session(object):
         try:
             data += os.read(self.socketToPipeR, 4096)
             lines = data.split(b'\n')
-            if lines[-1] != '':  # received partial line, don't process
+            if lines[-1] != b'':  # received partial line, don't process
                 data = lines[-1]
             else:
                 data = b''
