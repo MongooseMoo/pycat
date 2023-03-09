@@ -26,7 +26,7 @@ class Sample(modular.ModularClient):
 
         self.name = name
         self.logfname = '{}.log'.format(name)
-        self.mapfname = 'sample.map'.format(name)
+        self.mapfname = 'sample.map'
 
         self.modules = {}
         mods = {

@@ -205,7 +205,7 @@ class Session(object):
     def handle_from_telnet(self) -> None:
         try:
             data = self.telnet.read_very_eager()
-        except:
+        except Exception:
             self.log("EOF on telnet")
             self.telnet = None
             if self.terminate_on_disconnect:
