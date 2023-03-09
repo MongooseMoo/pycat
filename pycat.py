@@ -149,7 +149,7 @@ class Session(object):
                 return False
             elif parts[0] == '#$#mcp' and parts[1] == 'version:':
                 if not self.clients:  # nobody connected yet, defer it
-                    self.pipeToSocketW.write((line + '\n').encode())
+                    self.pipeToSocketW.write(('\n' + line + '\n').encode())
                     self.pipeToSocketW.flush()
             else:
                 replace_auth = True
@@ -289,7 +289,7 @@ class Session(object):
                 self.world.gmcp = gmcp
                 if self.telnet is None:
                     self.do_connect()
-            except Exception:
+            except Exception as e:
                 self.logException(e)
             return
         elif data.startswith('#connect '):
