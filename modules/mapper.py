@@ -695,14 +695,13 @@ class Mapper(BaseModule):
         super().__init__(mud)
         self.drawAreas = drawAreas
         self.spacesInRun = spacesInRun
-        mapfname = mapfname
         self.load([mapfname])
 
         self.commands = {
                 'lock': self.lockExit,
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(False, True, False)])),
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(True, True, False)])),
-                'gounmapped': lambda args: self.go((self.unmapped(False, True, True) or self.unmapped(False, False, True))[0], 'go'),
+                'gounmapped': lambda args: self.go((self.unmapped(False, True, True))[0], 'go'),
                 'goanyunmapped': lambda args: self.go((self.unmapped(False, True, True) or self.unmapped(False, False, True))[0], 'go'),
                 'av': self.autoVisit,
                 'areas': self.areas,
