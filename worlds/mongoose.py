@@ -40,7 +40,7 @@ class Mongoose(modular.ModularClient):
         self.name = name
         self.logfname = "mongoose.log"
         self.mapfname = "mongoose.map"
-        self.commfname = "mongoose.channels.log"
+        self.commfname = "mongoose.channels.{channel}.log"
 
         self.modules = {}
         mods = {
@@ -50,7 +50,7 @@ class Mongoose(modular.ModularClient):
             "mapper": (modules.mapper.Mapper, [True, self.mapfname, True]),
             "ping": (modules.ping.Ping, []),
             "file_edit": (modules.file_editor.FileEdit, []),
-            'commlog': (modules.commlog.CommLog, [self.commfname]),
+            "commlog": (modules.commlog.CommLog, [self.commfname]),
         }
 
         for modname, module in mods.items():
