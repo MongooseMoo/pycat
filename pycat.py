@@ -55,8 +55,8 @@ class Session(object):
         self.show(line.encode(self.client_encoding) + b"\n")
 
     def logException(self, exception) -> None:
-        traceback_with_variables.print_exc()
         sentry_sdk.capture_exception(exception)
+        traceback_with_variables.print_exc()
 
     def strip_ansi(self, line):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
@@ -217,8 +217,8 @@ class Session(object):
                 if line.startswith('#$#'):
                     if self.handleMcp(line):
                         continue
-                elif line.startswith('#$"'):
-                    line = line[3:]
+                # elif line.startswith('#$"'):
+                #     line = line[3:]
                 replacement = None
                 try:
                     replacement = self.world.trigger(line.strip())
