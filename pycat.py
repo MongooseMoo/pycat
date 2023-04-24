@@ -10,8 +10,8 @@ import telnetlib
 import threading
 from select import select
 from types import ModuleType
-import mcp
 
+import mcp
 import sentry_sdk
 import traceback_with_variables
 from modular import ModularClient
@@ -144,6 +144,9 @@ class Session(object):
                 self.world.handleMcpMultiline(parts[1], parts[2], ' '.join(parts[3:]))
             elif parts[0] == '#$#:':
                 # terminate multikine
+                pass
+            elif len(parts) < 2:
+                # not MCP
                 pass
             elif parts[1] == 'edit':
                 # Local Edit is built upon MCP 1.0, and doesn't have an auth key
