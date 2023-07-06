@@ -61,7 +61,7 @@ class Session(object):
     def strip_ansi(self, line):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
 
-    def gmcpOut(self, msg):
+    def gmcpOut(self, msg: str) -> None:
         if self.telnet:
             self.telnet.sock.sendall(telnetlib.IAC + telnetlib.SB + telnetlib.GMCP + msg.encode(self.mud_encoding) + telnetlib.IAC + telnetlib.SE)
 
@@ -194,6 +194,8 @@ class Session(object):
         self.telnet.write((line + '\n').encode(self.mud_encoding, errors="replace"))
 
     def handle_from_telnet(self) -> None:
+        if self.telnet is None:
+            return
         try:
             data = self.telnet.read_very_eager()
         except Exception:
@@ -204,6 +206,8 @@ class Session(object):
                 self.stopFlag.set()
                 raise
             self.session_state.clear()
+            return
+        if self.telnet is None:
             return
         try:
             data = data.decode(self.mud_encoding)
@@ -264,8 +268,7 @@ class Session(object):
             self.world.quit()
             raise
 
-
-    def handle_output_line(self, data: str):
+    def handle_output_line(self, data: str) -> None:
         """Pre-process data to be sent to the MUD"""
         pprint.pprint(data)
         if data == '#reload' and self.world:
